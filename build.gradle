@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -40,11 +40,10 @@ repositories {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	
 }
 
@@ -67,7 +66,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 25
 }
 
 java {
@@ -75,8 +74,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	// withSourcesJar(). hello reader :O
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
@@ -90,7 +89,7 @@ jar {
 task deployMod {
 	group = "deployment"
 	description = "Copies the newly built mod jar to the Modrinth profile folder, clearing old versions"
-	dependsOn tasks.named('remapJar')
+	dependsOn tasks.named('jar')
 	def archivesBaseNameStr = project.archives_base_name
 	doLast {
 		// Get the path to the Modrinth profile folder
@@ -98,7 +97,7 @@ task deployMod {
 		// You can change this to the path to your Modrinth profile folder
 		// if it is different. also why are you down here :|
 		def targetDir = "${System.getenv('APPDATA')}/ModrinthApp/profiles/Minecraft 1.21.11 (1)/mods"
-		def jarTask = tasks.named('remapJar').get()
+		def jarTask = tasks.named('jar').get()
 		def jarFile = jarTask.archiveFile.get().asFile
 
 		if (file(targetDir).exists()) {
@@ -132,9 +131,8 @@ publishing {
 	}
 }
 
-tasks.named('build').configure {
-	dependsOn deployMod
-}
+// Not hooked into 'build' in this fork: deployMod deletes/copies jars in a ModrinthApp profile folder.
+// Run it explicitly (gradlew deployMod) if wanted.
 
 task cleanLibs(type: Delete) {
 	group = "build"
