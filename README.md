@@ -1,6 +1,6 @@
 # Toggle Sprint (custom fork)
 
-This is a personal fork of **[Toggle Sprint](https://github.com/ResoluteStudios/togglesprint)** by **Resolute Studios**. All credit for the original mod goes to them.
+This is a personal fork of **[Toggle Sprint](https://github.com/OfficialRelmes/ToggleSprint)** by **Resolute Studios** (the repository has moved from `ResoluteStudios/togglesprint` to `OfficialRelmes/ToggleSprint`). All credit for the original mod goes to them.
 
 The fork keeps the original **MIT License** (see `LICENSE`). It was made for personal use and is not an official release.
 
