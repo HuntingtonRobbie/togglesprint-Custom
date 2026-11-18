@@ -1,40 +1,40 @@
 package resolutestudios.togglesprint.mixin;
 
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
-import net.minecraft.client.input.Input;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import resolutestudios.togglesprint.SprintManager;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.effect.MobEffects;
 
-@Mixin(ClientPlayerEntity.class)
+@Mixin(LocalPlayer.class)
 public abstract class ClientPlayerEntityMixin {
 	@Shadow
-	public Input input;
+	public ClientInput input;
 
-	@Inject(at = @At("HEAD"), method = "tickMovement")
+	@Inject(at = @At("HEAD"), method = "aiStep")
 	private void onTickMovement(CallbackInfo info) {
 		if (SprintManager.toggleActive) {
-			ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+			LocalPlayer player = (LocalPlayer) (Object) this;
 
 			// Anticheat Compatibility & Realistic Behavior:
 			// We mimic vanilla "Hold Sprint" behavior but only when it is safe to do so.
 			// This prevents the mod from forcing a sprint state while hitting a wall or taking damage,
 			// which would otherwise cause a "packet storm" (rapid start/stop packets) flagged by anticheats.
-			
-			boolean isMovingForward = this.input.hasForwardMovement(); // Yarn method (known good)
-			boolean canSprint = player.getHungerManager().getFoodLevel() > 6 || player.getAbilities().creativeMode;
-			boolean isNotObstructed = !player.horizontalCollision; 
-			boolean isNotDamaged = player.hurtTime <= 0; 
-			boolean isNotSneaking = !player.isSneaking(); // Using Entity method
-			boolean isNotBlind = !player.hasStatusEffect(StatusEffects.BLINDNESS);
+
+			boolean isMovingForward = this.input.hasForwardImpulse();
+			boolean canSprint = player.getFoodData().getFoodLevel() > 6 || player.getAbilities().instabuild;
+			boolean isNotObstructed = !player.horizontalCollision;
+			boolean isNotDamaged = player.hurtTime <= 0;
+			boolean isNotSneaking = !player.isShiftKeyDown();
+			boolean isNotBlind = !player.hasEffect(MobEffects.BLINDNESS);
 
 			if (isMovingForward && canSprint && isNotObstructed && isNotDamaged && isNotSneaking && isNotBlind) {
                 // Testing sprint field (if sprinting failed)
-				player.setSprinting(true); 
+				player.setSprinting(true);
 			}
 		}
 	}
